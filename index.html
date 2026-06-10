@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Elecciones Perú 2026 - Monitoreo ONPE</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI, Arial, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.header h1{
+    color:#d40000;
+    font-size:32px;
+}
+
+.header p{
+    color:#666;
+    margin-top:5px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:15px;
+    padding:25px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.card h2{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.votos{
+    font-size:40px;
+    font-weight:bold;
+    color:#222;
+}
+
+.porcentaje{
+    margin-top:10px;
+    font-size:24px;
+    color:#0066cc;
+    font-weight:bold;
+}
+
+.diferencia{
+    margin-top:25px;
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.diferencia h2{
+    color:#444;
+    margin-bottom:15px;
+}
+
+.diferencia-valor{
+    font-size:55px;
+    color:#009933;
+    font-weight:bold;
+}
+
+.ganador{
+    margin-top:10px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.footer{
+    text-align:center;
+    margin-top:20px;
+    color:#666;
+}
+
+.refresh{
+    margin-top:10px;
+    color:#999;
+    font-size:14px;
+}
+
+@media(max-width:768px){
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .votos{
+        font-size:30px;
+    }
+
+    .diferencia-valor{
+        font-size:40px;
+    }
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>ELECCIONES PERÚ 2026</h1>
+        <p>Monitoreo en tiempo real</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>Keiko Fujimori</h2>
+            <div id="keikoVotos" class="votos">---</div>
+            <div id="keikoPct" class="porcentaje">-- %</div>
+        </div>
+
+        <div class="card">
+            <h2>Roberto Sánchez</h2>
+            <div id="robertoVotos" class="votos">---</div>
+            <div id="robertoPct" class="porcentaje">-- %</div>
+        </div>
+
+    </div>
+
+    <div class="diferencia">
+        <h2>DIFERENCIA DE VOTOS</h2>
+
+        <div id="diferencia" class="diferencia-valor">
+            ---
+        </div>
+
+        <div id="ganador" class="ganador">
+            Calculando...
+        </div>
+    </div>
+
+    <div class="footer">
+        Fuente: ONPE
+        <div id="actualizacion" class="refresh">
+            Actualizando...
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+// REEMPLAZAR POR TU URL DEL APPS SCRIPT
+const API_URL = "TU_URL_AQUI";
+
+function formato(numero){
+    return Number(numero).toLocaleString('es-PE');
+}
+
+async function cargarDatos(){
+
+    try{
+
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        const keiko = data[0];
+        const roberto = data[1];
+
+        document.getElementById("keikoVotos").innerText =
+            formato(keiko.totalVotosValidos);
+
+        document.getElementById("keikoPct").innerText =
+            keiko.porcentajeVotosValidos + " %";
+
+        document.getElementById("robertoVotos").innerText =
+            formato(roberto.totalVotosValidos);
+
+        document.getElementById("robertoPct").innerText =
+            roberto.porcentajeVotosValidos + " %";
+
+        let diferencia =
+            Math.abs(
+                roberto.totalVotosValidos -
+                keiko.totalVotosValidos
+            );
+
+        document.getElementById("diferencia").innerText =
+            formato(diferencia);
+
+        if(roberto.totalVotosValidos > keiko.totalVotosValidos){
+
+            document.getElementById("ganador").innerText =
+            "Ventaja: Roberto Sánchez";
+
+        }else{
+
+            document.getElementById("ganador").innerText =
+            "Ventaja: Keiko Fujimori";
+        }
+
+        document.getElementById("actualizacion").innerText =
+        "Última actualización: " +
+        new Date().toLocaleString("es-PE");
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById("actualizacion").innerText =
+        "Error obteniendo datos";
+    }
+}
+
+cargarDatos();
+
+setInterval(cargarDatos,30000);
+
+</script>
+
+</body>
+</html>
